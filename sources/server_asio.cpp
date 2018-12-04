@@ -25,12 +25,13 @@ private:
     boost::asio::ip::tcp::socket socket;
     std::string log;
     boost::posix_time::ptime prev_ping;
-    char* message = new char[msg_buffer];
+    char* message;
 public:
     static std::vector<std::shared_ptr<talk_to_client>> users;
     talk_to_client()
     : socket(service)
     {
+        message = new char[msg_buffer];
         prev_ping = boost::posix_time::microsec_clock::local_time();
     }
     void login(const std::string& l)
@@ -59,6 +60,7 @@ public:
     }
     void write(const std::string& msg)
     {
+        message = {0};
         socket.write_some(boost::asio::buffer(msg));
     }
     // Get socket and login
