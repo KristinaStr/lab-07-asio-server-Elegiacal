@@ -13,11 +13,8 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/bind.hpp>
 
-using namespace boost::asio;
-using namespace boost::posix_time;
-
 boost::recursive_mutex mutex;
-io_service service;
+boost::asio::io_service service;
 const int msg_buffer = 1024;
 
 
@@ -25,11 +22,10 @@ const int msg_buffer = 1024;
 class talk_to_client
 {
 private:
-    ip::tcp::socket socket;
+    boost::asio::ip::tcp::socket socket;
     std::string log;
-    ptime prev_ping;
+    boost::posix_time::ptime prev_ping;
     char* message;
-    
 public:
     static std::vector<std::shared_ptr<talk_to_client>> users;
     
@@ -37,15 +33,13 @@ public:
     : socket(service)
     {
         message = new char[msg_buffer];
-        prev_ping = microsec_clock::local_time();
+        prev_ping = boost::posix_time::microsec_clock::local_time();
     }
-    
     void login(const std::string& l)
     {
         log = l;
         std::cout << "Logged in as " << log << std::endl;
     }
-    
     // Process and write
     void process_request()
     {
@@ -62,25 +56,21 @@ public:
         {
             ask_for_users();
         }
-        prev_ping = microsec_clock::local_time();
+        prev_ping = boost::posix_time::microsec_clock::local_time();
     }
-    
     void write(const std::string& msg)
     {
-        socket.write_some(buffer(msg));
+        socket.write_some(boost::asio::buffer(msg));
     }
-    
     // Get socket and login
     boost::asio::ip::tcp::socket& sock()
     {
         return socket;
     }
-    
     const std::string getLogin()
     {
         return log;
     }
-    
     void answer_to_user()
     {
         // Check for command
@@ -92,7 +82,6 @@ public:
         {
             socket.close();
         }
-        
         // Timeout check
         if (timed_out())
         {
@@ -100,7 +89,6 @@ public:
             std::cout << "Closing " << log << ": Deprecated" << std::endl;
         }
     }
-    
     static void ask_for_users()
     {
         for (size_t i = 0; i < users.size(); i++)
@@ -108,25 +96,20 @@ public:
             users[i]->write(users[i]->getLogin());
         }
     }
-    
     bool timed_out() const
     {
-        ptime now = microsec_clock::local_time();
-        long long is_out = (now - prev_ping).total_milliseconds();
+        boost::posix_time::ptime now =
+        boost::posix_time::microsec_clock::local_time();
+        int16_t is_out = (now - prev_ping).total_milliseconds();
         return is_out > 5000 ;
     }
-    
-    std::vector<std::shared_ptr<talk_to_client>> getUsers()
-    {
-        return users;
-    }
 };
-
 void accept_thread()
 {
-    ip::tcp::acceptor acceptor(service, boost::asio::ip::tcp::endpoint
-                               (boost::asio::ip::address::from_string
-                                ("127.0.0.1"), 8001));
+    boost::asio::ip::tcp::acceptor acceptor(service,
+    boost::asio::ip::tcp::endpoint
+    (boost::asio::ip::address::from_string
+    ("127.0.0.1"), 8001));
     while (true)
     {
         auto user = std::make_shared<talk_to_client>();
@@ -135,23 +118,22 @@ void accept_thread()
         talk_to_client::users.push_back(user);
     }
 }
-
 void handle_clients_thread()
 {
     while (true)
     {
-        boost::this_thread::sleep(millisec(1));
+        boost::this_thread::sleep(boost::posix_time::millisec(1));
         boost::recursive_mutex::scoped_lock lk(mutex);
         for (auto user : talk_to_client::users)
         {
             user->answer_to_user();
         }
-        talk_to_client::users.erase(std::remove_if(talk_to_client::users.begin(), talk_to_client::users.end(),
-            boost::bind(&talk_to_client::timed_out,_1)),
-            talk_to_client::users.end());
+        talk_to_client::users.erase(std::remove_if(
+        talk_to_client::users.begin(), talk_to_client::users.end(),
+        boost::bind(&talk_to_client::timed_out, _1)),
+        talk_to_client::users.end());
     }
 }
-
 int main()
 {
     boost::thread_group threads;
