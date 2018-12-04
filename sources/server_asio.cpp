@@ -25,13 +25,12 @@ private:
     boost::asio::ip::tcp::socket socket;
     std::string log;
     boost::posix_time::ptime prev_ping;
-    char* message;
+    char* message = new char[msg_buffer];
 public:
     static std::vector<std::shared_ptr<talk_to_client>> users;
     talk_to_client()
     : socket(service)
     {
-        message = new char[msg_buffer];
         prev_ping = boost::posix_time::microsec_clock::local_time();
     }
     void login(const std::string& l)
@@ -76,6 +75,7 @@ public:
         try
         {
             process_request();
+
         } catch (boost::system::system_error&)
         {
             socket.close();
@@ -99,7 +99,7 @@ public:
         boost::posix_time::ptime now =
         boost::posix_time::microsec_clock::local_time();
         int16_t is_out = (now - prev_ping).total_milliseconds();
-        return is_out > 5000;
+        return is_out > 5000 ;
     }
 };
 void accept_thread()
