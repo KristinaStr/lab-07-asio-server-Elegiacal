@@ -46,11 +46,12 @@ public:
             return;
         }
         std::string message(message, msg_buffer);
-        if (message.find("login") != std::string::npos)
+        std::size_t pos = message.find("login");
+        if (pos != std::string::npos)
         {
-            login(message);
+            login(message.substr(pos));
         }
-        if (message.find("ask_for_users") != std::string::npos)
+        if (message.find("ask_clients") != std::string::npos)
         {
             ask_for_users();
         }
