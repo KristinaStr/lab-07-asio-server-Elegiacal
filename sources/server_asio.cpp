@@ -50,7 +50,7 @@ public:
         {
             login(message);
         }
-        if (message.find("ask_clients") != std::string::npos)
+        if (message.find("ask_for_users") != std::string::npos)
         {
             ask_for_users();
         }
