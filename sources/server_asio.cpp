@@ -78,7 +78,6 @@ public:
         try
         {
             process_request();
-
         } catch (boost::system::system_error&)
         {
             socket.close();
@@ -102,7 +101,7 @@ public:
         boost::posix_time::ptime now =
         boost::posix_time::microsec_clock::local_time();
         int16_t is_out = (now - prev_ping).total_milliseconds();
-        return is_out > 5000 ;
+        return is_out > 5000;
     }
 };
 void accept_thread()
