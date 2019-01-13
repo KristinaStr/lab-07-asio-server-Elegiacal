@@ -28,36 +28,29 @@ public:
     : socket(service)
     , prev_ping(std::chrono::system_clock::now())
     {}
-    
     const std::string getLogin()
     {
         return log;
-    }
-    
+    }  
     void setLogin(const std::string& newLogin)
     {
         log = newLogin;
     }
-    
     std::chrono::time_point<std::chrono::system_clock> getLastPing()
     {
         return prev_ping;
     }
-    
     void setLastPing(const std::chrono::time_point
                      <std::chrono::system_clock>& ping)
     {
         prev_ping = ping;
     }
-    
     boost::asio::ip::tcp::socket& sock()
     {
         return socket;
     }
 };
-
 std::vector<talk_to_client*> clients;
-
 void accept_thread()
 {
     boost::asio::ip::tcp::acceptor acceptor
@@ -65,12 +58,10 @@ void accept_thread()
         service, boost::asio::ip::tcp::endpoint
         {boost::asio::ip::address::from_string("127.0.0.1"), 8001}
     };
-
     auto client = new talk_to_client();
     boost::recursive_mutex::scoped_lock lock{mutex};
     clients.push_back(client);
 }
-
 void handle_clients_thread()
 {
     for (auto i = 0; i < 65535; ++i)  //  while (true)
