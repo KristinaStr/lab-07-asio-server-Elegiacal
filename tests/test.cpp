@@ -32,20 +32,20 @@ public:
     const std::string getLogin()
     {
         return log;
-    } 
+    }
     void setLogin(const std::string& newLogin)
     {
         log = newLogin;
-    }   
+    }
     std::chrono::time_point<std::chrono::system_clock> getLastPing()
     {
         return prev_ping;
-    }  
+    }
     void setLastPing(const std::chrono::time_point
                      <std::chrono::system_clock>& ping)
     {
         prev_ping = ping;
-    } 
+    }
     boost::asio::ip::tcp::socket& sock()
     {
         return socket;
@@ -89,14 +89,12 @@ void handle_clients_thread()
                     std::chrono::system_clock::now());
                     clients[j]->sock().write_some(
                     boost::asio::buffer("ping_ok"));
-                } else if (message.find("ping") != std::string::npos)
-                {
+                } else if (message.find("ping") != std::string::npos) {
                     clients[j]->setLastPing(
                     std::chrono::system_clock::now());
                     clients[j]->sock().write_some(
                     boost::asio::buffer("ping_ok"));
-                } else if (message.find("clients") != std::string::npos)
-                {
+                } else if (message.find("clients") != std::string::npos) {
                     clients[j]->setLastPing(
                     std::chrono::system_clock::now());
                     clients[j]->sock().write_some(
