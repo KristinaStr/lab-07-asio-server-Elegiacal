@@ -88,14 +88,12 @@ void handle_clients_thread()
                     std::chrono::system_clock::now());
                     clients[j]->sock().write_some(
                     boost::asio::buffer("ping_ok"));
-                } else if (message.find("ping") != std::string::npos)
-                {
+                } else if (message.find("ping") != std::string::npos) {
                     clients[j]->setLastPing(
                     std::chrono::system_clock::now());
                     clients[j]->sock().write_some(
                     boost::asio::buffer("ping_ok"));
-                } else if (message.find("clients") != std::string::npos)
-                {
+                } else if (message.find("clients") != std::string::npos) {
                     clients[j]->setLastPing(
                     std::chrono::system_clock::now());
                     clients[j]->sock().write_some(
