@@ -31,7 +31,7 @@ public:
     const std::string getLogin()
     {
         return log;
-    }  
+    }
     void setLogin(const std::string& newLogin)
     {
         log = newLogin;
